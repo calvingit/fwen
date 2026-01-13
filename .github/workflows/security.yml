@@ -1,0 +1,24 @@
+name: Security
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v1
+        with:
+          python-version: "3.11"
+
+      - name: Install safety
+        run: uv pip install safety
+
+      - name: Run safety check
+        run: uv run safety check --json
+        continue-on-error: true
