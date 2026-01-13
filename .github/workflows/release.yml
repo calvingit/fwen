@@ -20,8 +20,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install build tools
+        run: uv pip install build twine
+
       - name: Build package
-        run: uv build
+        run: python -m build
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
