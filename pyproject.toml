@@ -79,3 +79,21 @@ exclude_lines = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
 ]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/tests",
+    "/templates",
+    "/scripts",
+    "/README.md",
+    "/CHANGELOG.md",
+    "/LICENSE",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fwen"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"templates" = "templates"
+"scripts" = "scripts"

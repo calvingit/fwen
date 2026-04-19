@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-import os
-import sys
 import argparse
+import os
 import subprocess
-import shutil
+import sys
 
 # Determine the absolute path to the templates directory
 # This assumes the script is located at .../skills/flutter-app-creator/scripts/scaffold_app.py
@@ -15,7 +14,7 @@ def run_command(command, cwd=None):
     """Run a shell command."""
     try:
         subprocess.check_call(command, shell=True, cwd=cwd)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         print(f"Error running command: {command}")
         sys.exit(1)
 
@@ -38,7 +37,7 @@ def get_template_content(template_path, **kwargs):
         print(f"Error: Template file not found at {full_path}")
         sys.exit(1)
 
-    with open(full_path, 'r') as f:
+    with open(full_path) as f:
         content = f.read()
 
     if kwargs:

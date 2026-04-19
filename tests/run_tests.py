@@ -11,7 +11,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Import test modules
+from tests.test_actions import TestPostCreationActions
+from tests.test_cli import TestCli
 from tests.test_config import TestConfig
+from tests.test_feature_script import TestFeatureScript
+from tests.test_generator import TestGenerateProject, TestProjectGenerator
+from tests.test_main import TestMainEntrypoint, TestMainHelpers
+from tests.test_prompts import TestPrompts
+from tests.test_repository_assets import TestRepositoryAssets
 from tests.test_utils import (
     TestCopyDirectory,
     TestCopyFileWithSubstitution,
@@ -19,7 +26,6 @@ from tests.test_utils import (
     TestPrintTree,
     TestValidateOutputDirectory,
 )
-from tests.test_generator import TestGenerateProject, TestProjectGenerator
 
 
 def run_tests(verbosity=2):
@@ -30,6 +36,11 @@ def run_tests(verbosity=2):
 
     # Add all test cases
     suite.addTests(loader.loadTestsFromTestCase(TestConfig))
+    suite.addTests(loader.loadTestsFromTestCase(TestCli))
+    suite.addTests(loader.loadTestsFromTestCase(TestPostCreationActions))
+    suite.addTests(loader.loadTestsFromTestCase(TestMainHelpers))
+    suite.addTests(loader.loadTestsFromTestCase(TestMainEntrypoint))
+    suite.addTests(loader.loadTestsFromTestCase(TestPrompts))
     suite.addTests(loader.loadTestsFromTestCase(TestGetFlutterExecutable))
     suite.addTests(loader.loadTestsFromTestCase(TestCopyFileWithSubstitution))
     suite.addTests(loader.loadTestsFromTestCase(TestCopyDirectory))
@@ -37,6 +48,8 @@ def run_tests(verbosity=2):
     suite.addTests(loader.loadTestsFromTestCase(TestPrintTree))
     suite.addTests(loader.loadTestsFromTestCase(TestProjectGenerator))
     suite.addTests(loader.loadTestsFromTestCase(TestGenerateProject))
+    suite.addTests(loader.loadTestsFromTestCase(TestFeatureScript))
+    suite.addTests(loader.loadTestsFromTestCase(TestRepositoryAssets))
 
     # Run tests
     runner = unittest.TextTestRunner(verbosity=verbosity)

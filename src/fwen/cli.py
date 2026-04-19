@@ -4,26 +4,24 @@ Supports both interactive and non-interactive modes.
 """
 
 import argparse
-from pathlib import Path
-from typing import Dict, List, Optional
 
 
 def create_parser() -> argparse.ArgumentParser:
     """Create the argument parser with all CLI options."""
     parser = argparse.ArgumentParser(
-        prog="flutter-clean-cli",
+        prog="fwen",
         description="Create Flutter apps with Clean Architecture from scratch.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   # Interactive mode (default)
-  python3 clean_flutter_cli.py
+  fwen
 
   # Non-interactive mode with basic options
-  python3 clean_flutter_cli.py --project-name my_app --org com.example
+  fwen --project-name my_app --org com.example
 
   # Full non-interactive mode
-  python3 clean_flutter_cli.py \\
+  fwen \\
     --project-name my_app \\
     --org com.example \\
     --state-management bloc \\
@@ -223,13 +221,13 @@ Examples:
     return parser
 
 
-def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
+def parse_args(args: list[str] | None = None) -> argparse.Namespace:
     """Parse command-line arguments."""
     parser = create_parser()
     return parser.parse_args(args)
 
 
-def args_to_config(args: argparse.Namespace) -> Dict:
+def args_to_config(args: argparse.Namespace) -> dict:
     """Convert parsed arguments to config dictionary."""
     config = {
         # Basic info
@@ -284,7 +282,7 @@ def should_use_interactive_mode(args: argparse.Namespace) -> bool:
     return False
 
 
-def validate_args(args: argparse.Namespace) -> tuple[bool, Optional[str]]:
+def validate_args(args: argparse.Namespace) -> tuple[bool, str | None]:
     """Validate command-line arguments."""
     # Check auth methods
     if args.include_auth and not args.auth_methods:
@@ -316,7 +314,8 @@ def validate_args(args: argparse.Namespace) -> tuple[bool, Optional[str]]:
 
     # Check project name format
     if args.project_name:
-        from modules.config import Config
+        from fwen.config import Config
+
         config = Config()
         is_valid, error = config.validate_project_name(args.project_name)
         if not is_valid:

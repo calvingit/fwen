@@ -5,12 +5,10 @@ Handles Flutter project creation and template application.
 
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
 
 from .config import Config
 from .utils import (
     copy_directory,
-    copy_file_with_substitution,
     get_flutter_executable,
     merge_pubspec_dependencies,
     run_command,
@@ -24,7 +22,17 @@ class ProjectGenerator:
         """Initialize generator with config and templates directory."""
         self.config = config
         self.templates_dir = templates_dir
-        self.project_path: Optional[Path] = None
+        self.project_path: Path | None = None
+
+    def _copy_template_directory(
+        self,
+        template_dir: Path,
+        destination: Path,
+        substitutions: dict[str, str],
+    ) -> None:
+        """Copy a template directory if it exists."""
+        if template_dir.exists():
+            copy_directory(template_dir, destination, substitutions)
 
     def generate(self) -> tuple[bool, str]:
         """
@@ -104,25 +112,45 @@ class ProjectGenerator:
 
         # Apply base templates
         base_templates = self.templates_dir / "base"
-        if base_templates.exists():
-            copy_directory(base_templates, self.project_path, substitutions)
+        self._copy_template_directory(base_templates, self.project_path, substitutions)
 
         # Apply state management templates
         sm = self.config.get("state_management")
         sm_templates = self.templates_dir / "state_management" / sm
-        if sm_templates.exists():
-            # Merge into lib directory
-            copy_directory(
-                sm_templates,
-                self.project_path / "lib",
-                substitutions,
-            )
+        self._copy_template_directory(sm_templates, self.project_path / "lib", substitutions)
 
         # Apply navigation templates
         nav = self.config.get("navigation")
         nav_templates = self.templates_dir / "navigation" / nav
-        if nav_templates.exists():
-            copy_directory(nav_templates, self.project_path / "lib", substitutions)
+        self._copy_template_directory(nav_templates, self.project_path / "lib", substitutions)
+
+        # Apply authentication templates if enabled
+        if self.config.get("include_auth"):
+            auth_templates = self.templates_dir / "auth"
+            self._copy_template_directory(auth_templates, self.project_path, substitutions)
+
+        # Apply API templates if enabled
+        if self.config.get("include_api"):
+            api_templates = self.templates_dir / "api"
+            self._copy_template_directory(api_templates, self.project_path, substitutions)
+
+        # Apply persistence templates if enabled
+        if self.config.get("include_persistence"):
+            persistence_templates = self.templates_dir / "persistence"
+            self._copy_template_directory(
+                persistence_templates,
+                self.project_path,
+                substitutions,
+            )
+
+        # Apply analytics templates if enabled
+        if self.config.get("include_analytics"):
+            analytics_templates = self.templates_dir / "analytics"
+            self._copy_template_directory(
+                analytics_templates,
+                self.project_path,
+                substitutions,
+            )
 
         # Apply Firebase templates if enabled
         if self.config.get("include_firebase"):
@@ -131,14 +159,16 @@ class ProjectGenerator:
                 services = self.config.get_selected_firebase_services()
                 for service in services:
                     service_templates = firebase_templates / service
-                    if service_templates.exists():
-                        copy_directory(service_templates, self.project_path, substitutions)
+                    self._copy_template_directory(
+                        service_templates,
+                        self.project_path,
+                        substitutions,
+                    )
 
         # Apply testing templates if enabled
         if self.config.get("include_testing"):
             testing_templates = self.templates_dir / "testing"
-            if testing_templates.exists():
-                copy_directory(testing_templates, self.project_path, substitutions)
+            self._copy_template_directory(testing_templates, self.project_path, substitutions)
 
         return True, "Templates applied"
 
@@ -189,7 +219,7 @@ class ProjectGenerator:
         return self.project_path or Path()
 
 
-def generate_project(config: Config, templates_dir: Path) -> tuple[bool, str, Optional[Path]]:
+def generate_project(config: Config, templates_dir: Path) -> tuple[bool, str, Path | None]:
     """
     Generate a Flutter project with the given configuration.
 

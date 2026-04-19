@@ -19,6 +19,8 @@ sdist/
 var/
 wheels/
 pip-wheel-metadata/
+!templates/base/lib/
+!templates/base/lib/**
 
 # PyInstaller
 *.manifest

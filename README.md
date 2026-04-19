@@ -116,31 +116,14 @@ fwen \
   --yes
 ```
 
-### Generated Project Structure
-
-```
-lib/
-├── bootstrap.dart              # App initialization & error handling
-├── main.dart                   # Entry point
-├── app/                        # App configuration & router
-│   ├── config/
-│   └── router/
-├── core/                       # Core infrastructure
-│   ├── di/
-│   ├── network/
-│   ├── services/
-│   ├── blocs/                  # State management (if Bloc)
-│   └── usecases/
-├── features/                   # Feature modules
-├── shared/                     # Shared UI & entities
-│   ├── widgets/
-│   ├── themes/
-│   └── models/
-├── l10n/                       # Localization
-└── gen/                        # Generated code
-```
-
 ## Documentation
+
+### Architecture Guide
+
+- [Flutter Architecture Guide](docs/flutter-architecture-guide.md) - architecture design
+  and recommended directory structure
+- [Flutter Template Guide](docs/flutter-template-guide.md) - template registry, decision
+  matrix, and extension rules
 
 ### Command-Line Arguments
 
@@ -180,17 +163,21 @@ lib/
 Use the feature generator script to add new features:
 
 ```bash
-fwen-feature <FeatureName>
+uv run python scripts/feature-dev.py <FeatureName>
 ```
 
 Example:
 
 ```bash
-fwen-feature Auth
+uv run python scripts/feature-dev.py Auth
 ```
 
 **Creates:**
-- `lib/features/auth/data/repositories/auth_repository.dart`
+- `lib/features/auth/domain/entities/auth_entity.dart`
+- `lib/features/auth/domain/repositories/auth_repository.dart`
+- `lib/features/auth/domain/usecases/get_auth_usecase.dart`
+- `lib/features/auth/data/models/auth_model.dart`
+- `lib/features/auth/data/repositories/auth_repository_impl.dart`
 - `lib/features/auth/presentation/pages/auth_page.dart`
 - Updates `lib/app/routes.dart` with new route
 

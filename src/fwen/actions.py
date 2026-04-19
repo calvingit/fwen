@@ -3,16 +3,12 @@ Post-creation actions for Flutter Clean CLI.
 Handles follow-up commands after project generation.
 """
 
-import asyncio
-import os
 import subprocess
 from pathlib import Path
-from typing import Callable, Dict, List
 
 import questionary
 from rich.console import Console
 from rich.panel import Panel
-from rich.spinner import Spinner
 from rich.text import Text
 
 from .utils import get_connected_devices, get_flutter_executable, print_tree, run_command
@@ -21,7 +17,7 @@ from .utils import get_connected_devices, get_flutter_executable, print_tree, ru
 class PostCreationActions:
     """Manages post-creation action menu and execution."""
 
-    def __init__(self, project_path: Path, config: Dict):
+    def __init__(self, project_path: Path, config: dict):
         """Initialize with project path and configuration."""
         self.project_path = project_path
         self.config = config
@@ -35,22 +31,22 @@ class PostCreationActions:
         platforms = self.config.get("platforms", [])
 
         summary = Text()
-        summary.append(f"✨ Flutter project '", style="bold green")
+        summary.append("✨ Flutter project '", style="bold green")
         summary.append(project_name, style="bold cyan")
         summary.append("' created successfully!\n\n", style="bold green")
 
-        summary.append(f"Location: ", style="dim")
+        summary.append("Location: ", style="dim")
         summary.append(f"{self.project_path}\n", style="cyan")
-        summary.append(f"State Management: ", style="dim")
+        summary.append("State Management: ", style="dim")
         summary.append(f"{state_management}\n", style="cyan")
-        summary.append(f"Navigation: ", style="dim")
+        summary.append("Navigation: ", style="dim")
         summary.append(f"{navigation}\n", style="cyan")
-        summary.append(f"Platforms: ", style="dim")
+        summary.append("Platforms: ", style="dim")
         summary.append(f"{', '.join(platforms)}\n", style="cyan")
 
         if self.config.get("include_firebase"):
             services = self.config.get("firebase_services", [])
-            summary.append(f"Firebase: ", style="dim")
+            summary.append("Firebase: ", style="dim")
             summary.append(f"{', '.join(services)}\n", style="cyan")
 
         panel = Panel(
@@ -60,6 +56,10 @@ class PostCreationActions:
         )
 
         self.console.print(panel)
+
+    def _get_feature_script_path(self) -> Path:
+        """Get the bundled feature generator script path."""
+        return Path(__file__).parent.parent.parent / "scripts" / "feature-dev.py"
 
     async def run_action_menu(self) -> None:
         """Display and execute post-creation action menu."""
@@ -195,12 +195,7 @@ class PostCreationActions:
 
     async def _create_feature(self) -> None:
         """Create an additional feature."""
-        feature_script = (
-            Path(__file__).parent.parent.parent
-            / "flutter-clean-app-creator"
-            / "scripts"
-            / "feature-dev.py"
-        )
+        feature_script = self._get_feature_script_path()
 
         if not feature_script.exists():
             self.console.print("[red]✗ feature-dev.py script not found[/red]")
@@ -236,7 +231,7 @@ class PostCreationActions:
         print()
 
 
-async def run_post_creation_actions(project_path: Path, config: Dict) -> None:
+async def run_post_creation_actions(project_path: Path, config: dict) -> None:
     """Run the post-creation action menu."""
     actions = PostCreationActions(project_path, config)
     actions.show_success_message()

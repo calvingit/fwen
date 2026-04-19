@@ -10,11 +10,6 @@ import asyncio
 import sys
 from pathlib import Path
 
-# Add src directory to path for development
-src_dir = Path(__file__).parent.parent.parent
-if (src_dir / "fwen").exists():
-    sys.path.insert(0, str(src_dir))
-
 from rich.console import Console
 
 from fwen.actions import run_post_creation_actions
@@ -122,8 +117,8 @@ async def run_non_interactive_mode(args, console: Console, config: Config, templ
     # In non-interactive mode, just print next steps instead of showing menu
     console.print("\n[bold]Next steps:[/bold]")
     console.print(f"  cd {project_path}")
-    console.print(f"  flutter pub get")
-    console.print(f"  flutter run\n")
+    console.print("  flutter pub get")
+    console.print("  flutter run\n")
 
 
 async def run_interactive_mode(console: Console, config: Config, templates_dir: Path):

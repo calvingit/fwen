@@ -3,9 +3,10 @@ Interactive prompts for Flutter Clean CLI.
 Uses questionary for rich terminal UI.
 """
 
-import questionary
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
+
+import questionary
 
 from .config import Config
 
@@ -24,7 +25,7 @@ class Prompts:
         self.current_section += 1
         print(f"\n📋 [{self.current_section}/{self.total_sections}] {section_name}\n")
 
-    async def run_all_prompts(self) -> Dict[str, Any]:
+    async def run_all_prompts(self) -> dict[str, Any]:
         """Run all prompt sections sequentially."""
         result = {}
 
@@ -50,7 +51,7 @@ class Prompts:
 
         return result
 
-    async def _project_basics(self) -> Dict[str, Any]:
+    async def _project_basics(self) -> dict[str, Any]:
         """Section 1: Project basic information."""
         result = {}
 
@@ -88,7 +89,7 @@ class Prompts:
 
         return result
 
-    async def _architecture_prompts(self) -> Dict[str, Any]:
+    async def _architecture_prompts(self) -> dict[str, Any]:
         """Section 2: Architecture and state management choices."""
         result = {}
 
@@ -133,7 +134,7 @@ class Prompts:
 
         return result
 
-    async def _platforms_prompts(self) -> Dict[str, Any]:
+    async def _platforms_prompts(self) -> dict[str, Any]:
         """Section 3: Platforms and Firebase configuration."""
         result = {}
 
@@ -194,7 +195,7 @@ class Prompts:
 
         return result
 
-    async def _development_tools_prompts(self) -> Dict[str, Any]:
+    async def _development_tools_prompts(self) -> dict[str, Any]:
         """Section 4: Development tools and integrations."""
         result = {}
 
@@ -286,7 +287,7 @@ class Prompts:
 
         return result
 
-    async def _feature_prompt(self) -> Dict[str, Any]:
+    async def _feature_prompt(self) -> dict[str, Any]:
         """Section 5: Initial feature creation."""
         result = {}
 
@@ -304,7 +305,7 @@ class Prompts:
 
         return result
 
-    async def confirm_summary(self, config: Dict[str, Any]) -> bool:
+    async def confirm_summary(self, config: dict[str, Any]) -> bool:
         """Display summary and ask for confirmation."""
         from rich.console import Console
         from rich.table import Table
@@ -339,7 +340,7 @@ class Prompts:
         ).ask_async()
 
 
-async def collect_user_config(config: Config) -> Dict[str, Any]:
+async def collect_user_config(config: Config) -> dict[str, Any]:
     """Collect all user configuration through interactive prompts."""
     prompts = Prompts(config)
     user_config = await prompts.run_all_prompts()

@@ -3,15 +3,13 @@ Utility functions for Flutter Clean CLI.
 """
 
 import os
-import shutil
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
 def run_command(
-    cmd: List[str],
-    cwd: Optional[str] = None,
+    cmd: list[str],
+    cwd: str | None = None,
     capture_output: bool = True,
 ) -> tuple[bool, str, str]:
     """
@@ -35,7 +33,7 @@ def run_command(
 def copy_file_with_substitution(
     src: Path,
     dest: Path,
-    substitutions: Dict[str, str],
+    substitutions: dict[str, str],
 ) -> None:
     """Copy a file while performing variable substitutions."""
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -50,16 +48,14 @@ def copy_file_with_substitution(
 def copy_directory(
     src: Path,
     dest: Path,
-    substitutions: Dict[str, str],
-    ignore_patterns: Optional[List[str]] = None,
+    substitutions: dict[str, str],
+    ignore_patterns: list[str] | None = None,
 ) -> None:
     """
     Copy a directory with substitutions.
 
     ignore_patterns: List of glob patterns to ignore (e.g., ["*.pyc", "__pycache__"])
     """
-    ignore = shutil.ignore_patterns(*ignore_patterns) if ignore_patterns else None
-
     for item in src.rglob("*"):
         if item.is_file():
             rel_path = item.relative_to(src)
@@ -75,13 +71,13 @@ def copy_directory(
 
 def merge_pubspec_dependencies(
     pubspec_path: Path,
-    dependencies: Dict[str, str],
-    dev_dependencies: Dict[str, str],
+    dependencies: dict[str, str],
+    dev_dependencies: dict[str, str],
 ) -> None:
     """Merge dependencies into existing pubspec.yaml."""
     import yaml
 
-    with open(pubspec_path, "r") as f:
+    with open(pubspec_path) as f:
         pubspec = yaml.safe_load(f)
 
     if "dependencies" not in pubspec:
@@ -112,7 +108,7 @@ def check_flutter_installed() -> tuple[bool, str]:
     return False, stderr or "Flutter not found in PATH"
 
 
-def get_connected_devices() -> List[Dict[str, str]]:
+def get_connected_devices() -> list[dict[str, str]]:
     """Get list of connected Flutter devices."""
     success, stdout, _ = run_command(["flutter", "devices"])
     if not success:
@@ -132,7 +128,7 @@ def get_connected_devices() -> List[Dict[str, str]]:
     return devices
 
 
-def create_directory_structure(base_path: Path, structure: Dict[str, List[str]]) -> None:
+def create_directory_structure(base_path: Path, structure: dict[str, list[str]]) -> None:
     """
     Create a directory structure from a nested dict.
 

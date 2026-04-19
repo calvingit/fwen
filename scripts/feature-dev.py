@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-import os
-import sys
 import argparse
+import os
 import re
+import sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../templates"))
+ROUTES_TEMPLATE = "base/lib/app/routes.dart"
 
 def get_template_content(template_path, **kwargs):
     """Read a template file and format it with the provided arguments."""
@@ -14,12 +15,12 @@ def get_template_content(template_path, **kwargs):
         print(f"Error: Template file not found at {full_path}")
         sys.exit(1)
 
-    with open(full_path, 'r') as f:
+    with open(full_path) as f:
         content = f.read()
 
     if kwargs:
         for key, value in kwargs.items():
-            content = content.replace('{' + key + '}', str(value))
+            content = content.replace('{{' + key + '}}', str(value))
     return content
 
 def create_directory(path):
@@ -28,28 +29,34 @@ def create_directory(path):
         print(f"Created directory: {path}")
 
 def write_file(path, content):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'w') as f:
         f.write(content)
     print(f"Created file: {path}")
 
 def to_pascal_case(s):
-    return ''.join(x for x in s.title() if not x.isspace())
+    words = re.findall(r"[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z]|$)", s.replace("-", "_"))
+    if not words:
+        words = [part for part in s.replace("-", "_").split("_") if part]
+    return ''.join(word.capitalize() for word in words)
 
 def to_snake_case(s):
-    return s.lower().replace(' ', '_')
+    normalized = re.sub(r"[\s-]+", "_", s)
+    snake_case = re.sub(r"(?<!^)(?=[A-Z])", "_", normalized).lower()
+    return re.sub(r"_+", "_", snake_case).strip("_")
 
 def update_routes_file(routes_file_path, feature_name, pascal_name, snake_name):
     if not os.path.exists(routes_file_path):
         # Create from template if not exists
         print(f"Routes file not found at {routes_file_path}. Creating it...")
-        content = get_template_content("app/routes.dart")
+        content = get_template_content(ROUTES_TEMPLATE)
         write_file(routes_file_path, content)
 
-    with open(routes_file_path, 'r') as f:
+    with open(routes_file_path) as f:
         content = f.read()
 
     # 1. Add Import
-    import_line = f"import '../../features/{snake_name}/presentation/pages/{snake_name}_page.dart';"
+    import_line = f"import '../features/{snake_name}/presentation/pages/{snake_name}_page.dart';"
     if import_line not in content:
         # Add import after the last import or at the top
         if "import " in content:

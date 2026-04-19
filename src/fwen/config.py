@@ -4,15 +4,14 @@ Handles default values, validation, and config management.
 """
 
 import re
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 
 class Config:
     """Manages CLI configuration with defaults and validation."""
 
     # Default values
-    DEFAULTS: Dict[str, Any] = {
+    DEFAULTS: dict[str, Any] = {
         "org_id": "com.example",
         "description": "A new Flutter project with Clean Architecture",
         "output_dir": ".",
@@ -51,7 +50,7 @@ class Config:
 
     def __init__(self):
         """Initialize config with defaults."""
-        self.data: Dict[str, Any] = self.DEFAULTS.copy()
+        self.data: dict[str, Any] = self.DEFAULTS.copy()
 
     def set(self, key: str, value: Any) -> None:
         """Set a config value."""
@@ -61,7 +60,7 @@ class Config:
         """Get a config value."""
         return self.data.get(key, default)
 
-    def update(self, updates: Dict[str, Any]) -> None:
+    def update(self, updates: dict[str, Any]) -> None:
         """Update multiple config values."""
         self.data.update(updates)
 
@@ -93,7 +92,7 @@ class Config:
         parts = snake_str.split('_')
         return parts[0] + ''.join(word.capitalize() for word in parts[1:])
 
-    def get_substitution_vars(self) -> Dict[str, str]:
+    def get_substitution_vars(self) -> dict[str, str]:
         """Get all substitution variables for templates."""
         project_name = self.get("project_name", "")
         return {
@@ -106,7 +105,7 @@ class Config:
             "navigation": self.get("navigation", "go_router"),
         }
 
-    def get_pubspec_dependencies(self) -> Dict[str, str]:
+    def get_pubspec_dependencies(self) -> dict[str, str]:
         """Get dependencies to add to pubspec.yaml based on config."""
         deps = {}
 
@@ -186,14 +185,14 @@ class Config:
 
         return {"dependencies": deps, "dev_dependencies": dev_deps}
 
-    def get_selected_platforms(self) -> List[str]:
+    def get_selected_platforms(self) -> list[str]:
         """Get list of selected platforms."""
         return self.get("platforms", ["ios", "android"])
 
-    def get_selected_firebase_services(self) -> List[str]:
+    def get_selected_firebase_services(self) -> list[str]:
         """Get list of selected Firebase services."""
         return self.get("firebase_services", [])
 
-    def get_selected_testing_types(self) -> List[str]:
+    def get_selected_testing_types(self) -> list[str]:
         """Get list of selected testing types."""
         return self.get("testing_types", [])
