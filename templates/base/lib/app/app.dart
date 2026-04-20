@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/di/service_locator.dart';
 import '../core/state_management/app_state.dart';
 import '../shared/themes/app_theme.dart';
+import 'router/app_router.dart';
 import 'routes.dart';
 
 class App extends StatelessWidget {
@@ -17,13 +18,15 @@ class App extends StatelessWidget {
       child: AnimatedBuilder(
         animation: controller,
         builder: (context, _) {
-          return MaterialApp(
-            title: '{{ProjectName}}',
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            themeMode: controller.state.themeMode,
-            initialRoute: AppRoutes.home,
-            routes: AppRoutes.routes,
+          return buildAppRouter(
+            AppRouterConfiguration(
+              title: '{{ProjectName}}',
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: controller.state.themeMode,
+              initialRoute: AppRoutes.home,
+              routes: AppRoutes.routes,
+            ),
           );
         },
       ),

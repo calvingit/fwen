@@ -47,11 +47,22 @@ class TestFeatureScript(unittest.TestCase):
                 / "pages"
                 / "demo_feature_page.dart"
             )
+            manager_path = (
+                project_root
+                / "lib"
+                / "features"
+                / "demo_feature"
+                / "presentation"
+                / "manager"
+                / "demo_feature_manager.dart"
+            )
 
             self.assertTrue(entity_path.exists())
             self.assertTrue(page_path.exists())
+            self.assertTrue(manager_path.exists())
             self.assertIn("class DemoFeatureEntity", entity_path.read_text())
             self.assertIn("class DemoFeaturePage", page_path.read_text())
+            self.assertIn("class DemoFeatureManager", manager_path.read_text())
 
 
 if __name__ == "__main__":

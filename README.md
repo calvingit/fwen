@@ -139,7 +139,8 @@ fwen \
 - `--state-management` - bloc|provider|riverpod (default: bloc)
 - `--navigation` - go_router|auto_route|navigator (default: go_router)
 - `--dependency-injection` - get_it|provider|riverpod (default: get_it)
-- `--no-examples` - Skip example code
+- `--no-examples` - Disable example scenarios. Default behavior enables `include_examples`
+  and applies `scenario.commerce_reference` into `lib/`.
 
 **Platforms:**
 - `--platforms` - ios android web macos windows linux (default: ios android)
@@ -157,6 +158,25 @@ fwen \
 - `--feature-name` - Create initial feature
 - `--yes, -y` - Skip confirmation
 - `--interactive, -i` - Force interactive mode
+
+### CLI Template Behavior
+
+- Default behavior uses `include_examples=True`, so generator selects
+  `scenario.commerce_reference`.
+- `scenario.commerce_reference` copies
+  `templates/scenarios/commerce_reference/lib/**` into generated project `lib/**`.
+- `--no-examples` sets `include_examples=False`, so generator skips
+  `scenario.commerce_reference`.
+
+Example:
+
+```bash
+# Includes scenario.commerce_reference by default
+fwen --project-name shop_app --org com.example
+
+# Skips scenario.commerce_reference
+fwen --project-name shop_app --org com.example --no-examples
+```
 
 ### Feature Generator
 

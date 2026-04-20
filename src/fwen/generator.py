@@ -7,6 +7,7 @@ import shutil
 from pathlib import Path
 
 from .config import Config
+from .template_registry import iter_selected_templates
 from .utils import (
     copy_directory,
     get_flutter_executable,
@@ -29,10 +30,17 @@ class ProjectGenerator:
         template_dir: Path,
         destination: Path,
         substitutions: dict[str, str],
-    ) -> None:
-        """Copy a template directory if it exists."""
-        if template_dir.exists():
-            copy_directory(template_dir, destination, substitutions)
+        template_id: str,
+        required: bool,
+    ) -> tuple[bool, str]:
+        """Copy a template directory with status-aware missing-template behavior."""
+        if not template_dir.exists():
+            if required:
+                return False, (f"Required template '{template_id}' not found: {template_dir}")
+            return True, f"Skipped optional template '{template_id}'"
+
+        copy_directory(template_dir, destination, substitutions)
+        return True, f"Applied template '{template_id}'"
 
     def generate(self) -> tuple[bool, str]:
         """
@@ -110,65 +118,19 @@ class ProjectGenerator:
         if lib_dir.exists():
             shutil.rmtree(lib_dir)
 
-        # Apply base templates
-        base_templates = self.templates_dir / "base"
-        self._copy_template_directory(base_templates, self.project_path, substitutions)
-
-        # Apply state management templates
-        sm = self.config.get("state_management")
-        sm_templates = self.templates_dir / "state_management" / sm
-        self._copy_template_directory(sm_templates, self.project_path / "lib", substitutions)
-
-        # Apply navigation templates
-        nav = self.config.get("navigation")
-        nav_templates = self.templates_dir / "navigation" / nav
-        self._copy_template_directory(nav_templates, self.project_path / "lib", substitutions)
-
-        # Apply authentication templates if enabled
-        if self.config.get("include_auth"):
-            auth_templates = self.templates_dir / "auth"
-            self._copy_template_directory(auth_templates, self.project_path, substitutions)
-
-        # Apply API templates if enabled
-        if self.config.get("include_api"):
-            api_templates = self.templates_dir / "api"
-            self._copy_template_directory(api_templates, self.project_path, substitutions)
-
-        # Apply persistence templates if enabled
-        if self.config.get("include_persistence"):
-            persistence_templates = self.templates_dir / "persistence"
-            self._copy_template_directory(
-                persistence_templates,
-                self.project_path,
-                substitutions,
+        for template in iter_selected_templates(self.config):
+            template_dir = self.templates_dir / template.source_path
+            destination = self.project_path / template.output_path
+            required = template.status == "implemented"
+            success, message = self._copy_template_directory(
+                template_dir=template_dir,
+                destination=destination,
+                substitutions=substitutions,
+                template_id=template.template_id,
+                required=required,
             )
-
-        # Apply analytics templates if enabled
-        if self.config.get("include_analytics"):
-            analytics_templates = self.templates_dir / "analytics"
-            self._copy_template_directory(
-                analytics_templates,
-                self.project_path,
-                substitutions,
-            )
-
-        # Apply Firebase templates if enabled
-        if self.config.get("include_firebase"):
-            firebase_templates = self.templates_dir / "firebase"
-            if firebase_templates.exists():
-                services = self.config.get_selected_firebase_services()
-                for service in services:
-                    service_templates = firebase_templates / service
-                    self._copy_template_directory(
-                        service_templates,
-                        self.project_path,
-                        substitutions,
-                    )
-
-        # Apply testing templates if enabled
-        if self.config.get("include_testing"):
-            testing_templates = self.templates_dir / "testing"
-            self._copy_template_directory(testing_templates, self.project_path, substitutions)
+            if not success:
+                return False, message
 
         return True, "Templates applied"
 

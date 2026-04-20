@@ -8,6 +8,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "../templates"))
 ROUTES_TEMPLATE = "base/lib/app/routes.dart"
 
+
 def get_template_content(template_path, **kwargs):
     """Read a template file and format it with the provided arguments."""
     full_path = os.path.join(TEMPLATES_DIR, template_path)
@@ -20,30 +21,35 @@ def get_template_content(template_path, **kwargs):
 
     if kwargs:
         for key, value in kwargs.items():
-            content = content.replace('{{' + key + '}}', str(value))
+            content = content.replace("{{" + key + "}}", str(value))
     return content
+
 
 def create_directory(path):
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Created directory: {path}")
 
+
 def write_file(path, content):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         f.write(content)
     print(f"Created file: {path}")
+
 
 def to_pascal_case(s):
     words = re.findall(r"[A-Z]?[a-z0-9]+|[A-Z]+(?=[A-Z]|$)", s.replace("-", "_"))
     if not words:
         words = [part for part in s.replace("-", "_").split("_") if part]
-    return ''.join(word.capitalize() for word in words)
+    return "".join(word.capitalize() for word in words)
+
 
 def to_snake_case(s):
     normalized = re.sub(r"[\s-]+", "_", s)
     snake_case = re.sub(r"(?<!^)(?=[A-Z])", "_", normalized).lower()
     return re.sub(r"_+", "_", snake_case).strip("_")
+
 
 def update_routes_file(routes_file_path, feature_name, pascal_name, snake_name):
     if not os.path.exists(routes_file_path):
@@ -83,11 +89,12 @@ def update_routes_file(routes_file_path, feature_name, pascal_name, snake_name):
         end_pos = match.end()
         content = content[:end_pos] + "\n" + route_entry + content[end_pos:]
 
-        with open(routes_file_path, 'w') as f:
+        with open(routes_file_path, "w") as f:
             f.write(content)
         print(f"Updated routes in {routes_file_path}")
     else:
         print(f"Error: Could not find 'routes' map in {routes_file_path}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Create a new feature module.")
@@ -103,7 +110,9 @@ def main():
 
     # Verify we are in a flutter project root (roughly)
     if not os.path.exists("lib"):
-        print("Error: 'lib' directory not found. Please run this script from the root of your Flutter project.")
+        print(
+            "Error: 'lib' directory not found. Please run this script from the root of your Flutter project."
+        )
         sys.exit(1)
 
     # Directories
@@ -129,9 +138,15 @@ def main():
 
     # Create all directories
     dirs_to_create = [
-        data_datasources_dir, data_models_dir, data_repo_dir,
-        domain_entities_dir, domain_repo_dir, domain_usecases_dir,
-        presentation_manager_dir, presentation_page_dir, presentation_widgets_dir
+        data_datasources_dir,
+        data_models_dir,
+        data_repo_dir,
+        domain_entities_dir,
+        domain_repo_dir,
+        domain_usecases_dir,
+        presentation_manager_dir,
+        presentation_page_dir,
+        presentation_widgets_dir,
     ]
 
     for d in dirs_to_create:
@@ -145,35 +160,55 @@ def main():
     write_file(entity_path, entity_content)
 
     # Data: Model
-    model_content = get_template_content("feature/model.dart", FeatureName=pascal_name, feature_name=snake_name)
+    model_content = get_template_content(
+        "feature/model.dart", FeatureName=pascal_name, feature_name=snake_name
+    )
     model_path = os.path.join(data_models_dir, f"{snake_name}_model.dart")
     write_file(model_path, model_content)
 
     # Domain: Repository Interface
-    repo_interface_content = get_template_content("feature/repository_interface.dart", FeatureName=pascal_name)
+    repo_interface_content = get_template_content(
+        "feature/repository_interface.dart", FeatureName=pascal_name
+    )
     repo_interface_path = os.path.join(domain_repo_dir, f"{snake_name}_repository.dart")
     write_file(repo_interface_path, repo_interface_content)
 
     # Domain: UseCase
-    usecase_content = get_template_content("feature/usecase.dart", FeatureName=pascal_name, feature_name=snake_name)
+    usecase_content = get_template_content(
+        "feature/usecase.dart", FeatureName=pascal_name, feature_name=snake_name
+    )
     usecase_path = os.path.join(domain_usecases_dir, f"get_{snake_name}_usecase.dart")
     write_file(usecase_path, usecase_content)
 
     # Data: Repository Implementation
-    repo_impl_content = get_template_content("feature/repository_impl.dart", FeatureName=pascal_name, feature_name=snake_name)
+    repo_impl_content = get_template_content(
+        "feature/repository_impl.dart", FeatureName=pascal_name, feature_name=snake_name
+    )
     repo_impl_path = os.path.join(data_repo_dir, f"{snake_name}_repository_impl.dart")
     write_file(repo_impl_path, repo_impl_content)
 
     # Presentation: Page
-    page_content = get_template_content("feature/page.dart", FeatureName=pascal_name, feature_name=snake_name)
+    page_content = get_template_content(
+        "feature/page.dart", FeatureName=pascal_name, feature_name=snake_name
+    )
     page_path = os.path.join(presentation_page_dir, f"{snake_name}_page.dart")
     write_file(page_path, page_content)
+
+    # Presentation: Manager
+    manager_content = get_template_content(
+        "feature/manager.dart",
+        FeatureName=pascal_name,
+        feature_name=snake_name,
+    )
+    manager_path = os.path.join(presentation_manager_dir, f"{snake_name}_manager.dart")
+    write_file(manager_path, manager_content)
 
     # Routes
     routes_file = os.path.join("lib", "app", "routes.dart")
     update_routes_file(routes_file, name, pascal_name, snake_name)
 
     print(f"Feature '{pascal_name}' created successfully.")
+
 
 if __name__ == "__main__":
     main()

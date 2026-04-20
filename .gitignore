@@ -21,6 +21,8 @@ wheels/
 pip-wheel-metadata/
 !templates/base/lib/
 !templates/base/lib/**
+!templates/scenarios/commerce_reference/lib/
+!templates/scenarios/commerce_reference/lib/**
 
 # PyInstaller
 *.manifest

@@ -116,8 +116,12 @@ class TestProjectGenerator(unittest.TestCase):
             "  }\n"
             "}\n"
         )
-        (self.templates_dir / "base" / "lib" / "core" / "state_management").mkdir(parents=True, exist_ok=True)
-        (self.templates_dir / "base" / "lib" / "core" / "state_management" / "app_state.dart").write_text(
+        (self.templates_dir / "base" / "lib" / "core" / "state_management").mkdir(
+            parents=True, exist_ok=True
+        )
+        (
+            self.templates_dir / "base" / "lib" / "core" / "state_management" / "app_state.dart"
+        ).write_text(
             "import 'package:flutter/material.dart';\n\n"
             "class AppState {\n"
             "  const AppState({this.themeMode = ThemeMode.system});\n\n"
@@ -133,7 +137,9 @@ class TestProjectGenerator(unittest.TestCase):
             "      : super(notifier: controller);\n"
             "}\n"
         )
-        (self.templates_dir / "base" / "lib" / "shared" / "themes").mkdir(parents=True, exist_ok=True)
+        (self.templates_dir / "base" / "lib" / "shared" / "themes").mkdir(
+            parents=True, exist_ok=True
+        )
         (self.templates_dir / "base" / "lib" / "shared" / "themes" / "app_theme.dart").write_text(
             "import 'package:flutter/material.dart';\n\n"
             "class AppTheme {\n"
@@ -149,6 +155,17 @@ class TestProjectGenerator(unittest.TestCase):
         (self.templates_dir / "state_management" / "bloc" / "lib" / "bloc.dart").write_text(
             "class {{ProjectName}}Bloc {}"
         )
+        (self.templates_dir / "core" / "di" / "core" / "di").mkdir(parents=True)
+        (
+            self.templates_dir / "core" / "di" / "core" / "di" / "feature_registrations.dart"
+        ).write_text(
+            "import 'package:get_it/get_it.dart';\n\n"
+            "Future<void> registerFeatureDependencies(GetIt serviceLocator) async {}\n"
+        )
+        (self.templates_dir / "navigation" / "go_router" / "app" / "router").mkdir(parents=True)
+        (
+            self.templates_dir / "navigation" / "go_router" / "app" / "router" / "app_router.dart"
+        ).write_text("class AppRouter {}")
 
         self.output_dir.mkdir(parents=True)
 
@@ -158,6 +175,7 @@ class TestProjectGenerator(unittest.TestCase):
         self.config.set("org_id", "com.example")
         self.config.set("state_management", "bloc")
         self.config.set("output_dir", str(self.output_dir))
+        self.config.set("include_examples", False)
 
     def tearDown(self):
         """Clean up test fixtures."""
@@ -212,7 +230,9 @@ class TestProjectGenerator(unittest.TestCase):
         self.assertIn("--org", args)
         self.assertIn("com.example", args)
 
-    @patch.object(ProjectGenerator, "_create_flutter_project", return_value=(False, "flutter failed"))
+    @patch.object(
+        ProjectGenerator, "_create_flutter_project", return_value=(False, "flutter failed")
+    )
     def test_generate_returns_flutter_failure_before_setting_project_path(self, mock_create):
         """generate() should stop immediately when flutter project creation fails."""
         generator = ProjectGenerator(self.config, self.templates_dir)
@@ -223,7 +243,9 @@ class TestProjectGenerator(unittest.TestCase):
         self.assertEqual(message, "flutter failed")
         self.assertIsNone(generator.project_path)
 
-    @patch.object(ProjectGenerator, "_create_flutter_project", return_value=(False, "flutter failed"))
+    @patch.object(
+        ProjectGenerator, "_create_flutter_project", return_value=(False, "flutter failed")
+    )
     def test_generate_creates_missing_output_directory(self, mock_create):
         """generate() should create the output directory before invoking flutter."""
         missing_output_dir = Path(self.test_dir) / "missing-output"
@@ -263,8 +285,12 @@ class TestProjectGenerator(unittest.TestCase):
     @patch.object(ProjectGenerator, "_create_flutter_project", return_value=(True, "ok"))
     @patch.object(ProjectGenerator, "_apply_templates", return_value=(True, "ok"))
     @patch.object(ProjectGenerator, "_update_pubspec", return_value=(True, "ok"))
-    @patch.object(ProjectGenerator, "_create_initial_feature", return_value=(False, "feature failed"))
-    def test_generate_returns_feature_failure(self, mock_feature, mock_pubspec, mock_apply, mock_create):
+    @patch.object(
+        ProjectGenerator, "_create_initial_feature", return_value=(False, "feature failed")
+    )
+    def test_generate_returns_feature_failure(
+        self, mock_feature, mock_pubspec, mock_apply, mock_create
+    ):
         """generate() should stop when the optional initial feature fails."""
         self.config.set("create_feature", True)
         generator = ProjectGenerator(self.config, self.templates_dir)
@@ -289,7 +315,7 @@ class TestProjectGenerator(unittest.TestCase):
         generator = ProjectGenerator(self.config, self.templates_dir)
         generator.project_path = project_dir
 
-        success, message = generator._apply_templates()
+        success, _ = generator._apply_templates()
 
         self.assertTrue(success)
         # Verify base templates were copied
@@ -304,7 +330,7 @@ class TestProjectGenerator(unittest.TestCase):
         generator = ProjectGenerator(self.config, self.templates_dir)
         generator.project_path = project_dir
 
-        success, message = generator._apply_templates()
+        success, _ = generator._apply_templates()
 
         self.assertTrue(success)
         expected_files = [
@@ -340,6 +366,9 @@ class TestProjectGenerator(unittest.TestCase):
         success, message = generator._apply_templates()
 
         self.assertTrue(success)
+        copied_sources = [call.args[0] for call in mock_copy.call_args_list]
+        self.assertIn(self.templates_dir / "state_management" / "bloc", copied_sources)
+        self.assertIn(self.templates_dir / "navigation" / "go_router", copied_sources)
 
     def test_apply_templates_without_project_path_fails(self):
         """Applying templates without a project path should fail."""
@@ -370,7 +399,6 @@ class TestProjectGenerator(unittest.TestCase):
         """Optional navigation, firebase, and testing templates should be applied when present."""
         project_dir = self.output_dir / "test_app"
         (project_dir / "lib").mkdir(parents=True)
-        (self.templates_dir / "navigation" / "go_router").mkdir(parents=True)
         (self.templates_dir / "firebase" / "auth").mkdir(parents=True)
         (self.templates_dir / "testing").mkdir(parents=True)
         self.config.set("include_firebase", True)
@@ -386,6 +414,36 @@ class TestProjectGenerator(unittest.TestCase):
         destinations = [call.args[1] for call in mock_copy.call_args_list]
         self.assertIn(project_dir, destinations)
         self.assertIn(project_dir / "lib", destinations)
+
+    def test_apply_templates_missing_implemented_template_fails(self):
+        """Missing implemented templates should fail generation."""
+        project_dir = self.output_dir / "test_app"
+        (project_dir / "lib").mkdir(parents=True)
+        shutil.rmtree(self.templates_dir / "navigation" / "go_router")
+
+        generator = ProjectGenerator(self.config, self.templates_dir)
+        generator.project_path = project_dir
+
+        success, message = generator._apply_templates()
+
+        self.assertFalse(success)
+        self.assertIn("navigation.go_router", message)
+
+    @patch("fwen.generator.copy_directory")
+    def test_apply_templates_missing_extension_template_is_skipped(self, mock_copy):
+        """Missing extension templates should be skipped without errors."""
+        project_dir = self.output_dir / "test_app"
+        (project_dir / "lib").mkdir(parents=True)
+        self.config.set("include_auth", True)
+
+        generator = ProjectGenerator(self.config, self.templates_dir)
+        generator.project_path = project_dir
+
+        success, message = generator._apply_templates()
+
+        self.assertTrue(success)
+        copied_sources = [call.args[0] for call in mock_copy.call_args_list]
+        self.assertNotIn(self.templates_dir / "auth", copied_sources)
 
     @patch("fwen.generator.copy_directory")
     def test_apply_templates_copies_common_feature_infra_templates(self, mock_copy):
@@ -415,6 +473,36 @@ class TestProjectGenerator(unittest.TestCase):
         self.assertIn(self.templates_dir / "api", copied_sources)
         self.assertIn(self.templates_dir / "persistence", copied_sources)
         self.assertIn(self.templates_dir / "analytics", copied_sources)
+
+    def test_apply_templates_copies_commerce_reference_when_examples_enabled(self):
+        """Commerce reference templates should be copied when include_examples is enabled."""
+        project_dir = self.output_dir / "test_app"
+        (project_dir / "lib").mkdir(parents=True)
+        scenario_root = self.templates_dir / "scenarios" / "commerce_reference" / "lib"
+        (scenario_root / "features" / "auth" / "presentation" / "pages").mkdir(parents=True)
+        (
+            scenario_root / "features" / "auth" / "presentation" / "pages" / "auth_page.dart"
+        ).write_text("class AuthPage {}")
+
+        self.config.set("include_examples", True)
+
+        generator = ProjectGenerator(self.config, self.templates_dir)
+        generator.project_path = project_dir
+
+        success, _ = generator._apply_templates()
+
+        self.assertTrue(success)
+        self.assertTrue(
+            (
+                project_dir
+                / "lib"
+                / "features"
+                / "auth"
+                / "presentation"
+                / "pages"
+                / "auth_page.dart"
+            ).exists()
+        )
 
     @patch("fwen.generator.merge_pubspec_dependencies")
     def test_update_pubspec_success(self, mock_merge):
