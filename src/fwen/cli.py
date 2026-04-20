@@ -17,6 +17,10 @@ Examples:
   # Interactive mode (default)
   fwen
 
+  # Template registry commands
+  fwen templates list
+  fwen templates explain --state-management riverpod --navigation auto_route --no-examples
+
   # Non-interactive mode with basic options
   fwen --project-name my_app --org com.example
 
@@ -216,6 +220,20 @@ Examples:
         "-y",
         action="store_true",
         help="Skip confirmation prompt in non-interactive mode",
+    )
+
+    # Template command mode
+    parser.add_argument(
+        "command",
+        nargs="?",
+        choices=["templates"],
+        help="Template registry commands",
+    )
+    parser.add_argument(
+        "template_action",
+        nargs="?",
+        choices=["list", "explain"],
+        help="Template command action",
     )
 
     return parser

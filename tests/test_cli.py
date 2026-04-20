@@ -27,6 +27,33 @@ class TestCli(unittest.TestCase):
         self.assertFalse(is_valid)
         self.assertIn("Invalid project name", error)
 
+    def test_parse_templates_list_command(self):
+        """Templates command should parse command and action."""
+        args = parse_args(["templates", "list"])
+
+        self.assertEqual(args.command, "templates")
+        self.assertEqual(args.template_action, "list")
+
+    def test_parse_templates_explain_command_with_overrides(self):
+        """Templates explain should accept architecture overrides."""
+        args = parse_args(
+            [
+                "templates",
+                "explain",
+                "--state-management",
+                "riverpod",
+                "--navigation",
+                "auto_route",
+                "--no-examples",
+            ]
+        )
+
+        self.assertEqual(args.command, "templates")
+        self.assertEqual(args.template_action, "explain")
+        self.assertEqual(args.state_management, "riverpod")
+        self.assertEqual(args.navigation, "auto_route")
+        self.assertTrue(args.no_examples)
+
 
 if __name__ == "__main__":
     unittest.main()

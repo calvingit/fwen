@@ -25,3 +25,6 @@ jobs:
 
       - name: Run ruff format check
         run: uv run ruff format --check .
+
+      - name: Verify template guide sync
+        run: uv run python scripts/sync_template_guide.py --check

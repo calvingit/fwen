@@ -159,6 +159,12 @@ fwen \
 - `--yes, -y` - Skip confirmation
 - `--interactive, -i` - Force interactive mode
 
+**Template Commands:**
+- `fwen templates list` - Show full template registry metadata
+- `fwen templates explain` - Show selected templates for current/default CLI config
+- `fwen templates explain --state-management riverpod --navigation auto_route --no-examples`
+  - Explain template selection for a specific architecture combination
+
 ### CLI Template Behavior
 
 - Default behavior uses `include_examples=True`, so generator selects

@@ -30,24 +30,35 @@ Each registry entry (`TemplateRegistration`) defines:
 
 The table below reflects the current registry entries.
 
+<!-- TEMPLATE_REGISTRY_TABLE:START -->
+
 | Template ID | Layer | CLI Dependencies | Source Path | Output Path | Scenario | Mutually Exclusive With | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `base` | `app` | always | `base` | `.` | App bootstrap, shell, and shared skeleton. | - | `implemented` |
-| `feature` | `features` | `--create-feature`, `--feature-name` | `feature` | `lib/features/<feature_name>` | Feature scaffold used by `scripts/feature-dev.py`. | - | `implemented` |
-| `core.di.feature_registrations` | `core` | always | `core/di` | `lib` | Feature dependency registration connector for DI. | - | `implemented` |
-| `state_management.bloc` | `core` | `--state-management=bloc` | `state_management/bloc` | `lib` | Bloc state-management connector. | `state_management.provider`, `state_management.riverpod` | `implemented` |
-| `state_management.provider` | `core` | `--state-management=provider` | `state_management/provider` | `lib` | Provider state-management connector. | `state_management.bloc`, `state_management.riverpod` | `implemented` |
-| `state_management.riverpod` | `core` | `--state-management=riverpod` | `state_management/riverpod` | `lib` | Riverpod state-management connector. | `state_management.bloc`, `state_management.provider` | `implemented` |
-| `navigation.go_router` | `app` | `--navigation=go_router` | `navigation/go_router` | `lib` | GoRouter root routing integration. | `navigation.auto_route`, `navigation.navigator` | `implemented` |
-| `navigation.auto_route` | `app` | `--navigation=auto_route` | `navigation/auto_route` | `lib` | AutoRoute root routing integration. | `navigation.go_router`, `navigation.navigator` | `implemented` |
-| `navigation.navigator` | `app` | `--navigation=navigator` | `navigation/navigator` | `lib` | Navigator root routing integration. | `navigation.go_router`, `navigation.auto_route` | `implemented` |
-| `auth` | `features` | `--include-auth` | `auth` | `.` | Authentication feature extension point. | - | `extension` |
-| `api` | `core` | `--include-api` | `api` | `.` | API client extension point. | - | `extension` |
-| `persistence` | `core` | `--include-persistence` | `persistence` | `.` | Local persistence extension point. | - | `extension` |
-| `analytics` | `core` | `--include-analytics` | `analytics` | `.` | Analytics extension point. | - | `extension` |
-| `testing` | `test` | `--include-testing` | `testing` | `.` | Unit/widget testing starter templates. | - | `implemented` |
-| `scenario.commerce_reference` | `features` | `--include-examples` | `scenarios/commerce_reference/lib` | `lib` | Multi-feature sample for `auth/catalog/cart/profile`. | - | `implemented` |
-| `firebase.<service>` | `core` | `--include-firebase`, `--firebase-services=<service>` | `firebase/<service>` | `.` | Firebase service extension points (`auth/firestore/functions/analytics/messaging/storage/remote_config/crashlytics`). | - | `extension` |
+| `base` | `app` | always | `base` | `.` | App bootstrap, shell wiring, and shared app skeleton. | - | `implemented` |
+| `feature` | `features` | --create-feature, --feature-name | `feature` | `lib/features/<feature_name>` | Feature vertical-slice scaffold used by scripts/feature-dev.py. | - | `implemented` |
+| `core.di.feature_registrations` | `core` | always | `core/di` | `lib` | Core DI extension point for feature-level registrations. | - | `implemented` |
+| `state_management.bloc` | `core` | --state-management=bloc | `state_management/bloc` | `lib` | State-management connector for bloc projects. | state_management.provider, state_management.riverpod | `implemented` |
+| `state_management.provider` | `core` | --state-management=provider | `state_management/provider` | `lib` | State-management connector for provider projects. | state_management.bloc, state_management.riverpod | `implemented` |
+| `state_management.riverpod` | `core` | --state-management=riverpod | `state_management/riverpod` | `lib` | State-management connector for riverpod projects. | state_management.bloc, state_management.provider | `implemented` |
+| `navigation.go_router` | `app` | --navigation=go_router | `navigation/go_router` | `lib` | Root router integration for go_router. | navigation.auto_route, navigation.navigator | `implemented` |
+| `navigation.auto_route` | `app` | --navigation=auto_route | `navigation/auto_route` | `lib` | Root router integration for auto_route. | navigation.go_router, navigation.navigator | `implemented` |
+| `navigation.navigator` | `app` | --navigation=navigator | `navigation/navigator` | `lib` | Root router integration for Navigator 2.0. | navigation.go_router, navigation.auto_route | `implemented` |
+| `auth` | `features` | --include-auth | `auth` | `.` | Authentication feature extension point. | - | `extension` |
+| `api` | `core` | --include-api | `api` | `.` | Network API extension point. | - | `extension` |
+| `persistence` | `core` | --include-persistence | `persistence` | `.` | Persistence extension point. | - | `extension` |
+| `analytics` | `core` | --include-analytics | `analytics` | `.` | Analytics extension point. | - | `extension` |
+| `testing` | `test` | --include-testing | `testing` | `.` | Starter unit/widget testing templates. | - | `implemented` |
+| `scenario.commerce_reference` | `features` | --include-examples | `scenarios/commerce_reference/lib` | `lib` | Multi-feature reference scenario for auth/catalog/cart/profile. | - | `implemented` |
+| `firebase.auth` | `core` | --include-firebase, --firebase-services=auth | `firebase/auth` | `.` | Firebase auth extension point. | - | `extension` |
+| `firebase.firestore` | `core` | --include-firebase, --firebase-services=firestore | `firebase/firestore` | `.` | Firebase firestore extension point. | - | `extension` |
+| `firebase.functions` | `core` | --include-firebase, --firebase-services=functions | `firebase/functions` | `.` | Firebase functions extension point. | - | `extension` |
+| `firebase.analytics` | `core` | --include-firebase, --firebase-services=analytics | `firebase/analytics` | `.` | Firebase analytics extension point. | - | `extension` |
+| `firebase.messaging` | `core` | --include-firebase, --firebase-services=messaging | `firebase/messaging` | `.` | Firebase messaging extension point. | - | `extension` |
+| `firebase.storage` | `core` | --include-firebase, --firebase-services=storage | `firebase/storage` | `.` | Firebase storage extension point. | - | `extension` |
+| `firebase.remote_config` | `core` | --include-firebase, --firebase-services=remote_config | `firebase/remote_config` | `.` | Firebase remote_config extension point. | - | `extension` |
+| `firebase.crashlytics` | `core` | --include-firebase, --firebase-services=crashlytics | `firebase/crashlytics` | `.` | Firebase crashlytics extension point. | - | `extension` |
+
+<!-- TEMPLATE_REGISTRY_TABLE:END -->
 
 ## Template Decision Matrix
 

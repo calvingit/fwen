@@ -22,6 +22,7 @@ from fwen.cli import (
 from fwen.config import Config
 from fwen.generator import generate_project
 from fwen.prompts import Prompts, collect_user_config
+from fwen.template_registry import get_template_registry, iter_selected_templates
 from fwen.utils import check_flutter_installed
 
 
@@ -77,6 +78,89 @@ def print_config_summary(console: Console, config: dict) -> None:
     if config.get("create_feature"):
         table.add_row("Initial Feature", config.get("feature_name", ""))
 
+    console.print(table)
+
+
+def is_template_command(args) -> bool:
+    """Return whether args requests template registry command mode."""
+    return getattr(args, "command", None) == "templates"
+
+
+def _format_dependencies(template) -> str:
+    """Render CLI dependency list for display."""
+    if not template.cli_dependencies:
+        return "always"
+    return ", ".join(template.cli_dependencies)
+
+
+def _format_exclusions(template) -> str:
+    """Render mutual exclusion list for display."""
+    if not template.mutually_exclusive_with:
+        return "-"
+    return ", ".join(template.mutually_exclusive_with)
+
+
+def _selection_reason(template, selected_ids: set[str]) -> str:
+    """Explain selection status for a template row."""
+    if template.template_id in selected_ids:
+        return "selected"
+    if not template.applies_during_generation:
+        return "feature-script-only"
+    return "requirements-not-met"
+
+
+def run_template_command(args, console: Console) -> None:
+    """Render template registry information."""
+    from rich.table import Table
+
+    action = args.template_action or "list"
+
+    if action == "list":
+        table = Table(title="Template Registry")
+        table.add_column("Template ID", style="cyan")
+        table.add_column("Layer", style="green")
+        table.add_column("Status")
+        table.add_column("CLI Dependencies")
+        table.add_column("Output Path")
+
+        for template in get_template_registry():
+            table.add_row(
+                template.template_id,
+                template.layer,
+                template.status,
+                _format_dependencies(template),
+                template.output_path,
+            )
+        console.print(table)
+        return
+
+    config = Config()
+    config.update(args_to_config(args))
+    selected = iter_selected_templates(config)
+    selected_ids = {template.template_id for template in selected}
+
+    console.print("[bold]Template Selection[/bold]")
+    console.print(
+        "Config: "
+        f"state_management={config.get('state_management')}, "
+        f"navigation={config.get('navigation')}, "
+        f"include_examples={config.get('include_examples')}, "
+        f"include_testing={config.get('include_testing')}"
+    )
+
+    table = Table(title="Template Explain")
+    table.add_column("Template ID", style="cyan")
+    table.add_column("Selected")
+    table.add_column("Reason")
+    table.add_column("Mutually Exclusive With")
+
+    for template in get_template_registry():
+        table.add_row(
+            template.template_id,
+            "yes" if template.template_id in selected_ids else "no",
+            _selection_reason(template, selected_ids),
+            _format_exclusions(template),
+        )
     console.print(table)
 
 
@@ -157,6 +241,10 @@ async def main():
 
     console = Console()
 
+    if is_template_command(args):
+        run_template_command(args, console)
+        return
+
     # Check Flutter installation
     console.print("[dim]Checking Flutter installation...[/dim]")
     flutter_ok, flutter_msg = check_flutter_installed()
@@ -201,6 +289,7 @@ async def main():
     except Exception as e:
         print_error(console, str(e))
         import traceback
+
         console.print(traceback.format_exc())
         sys.exit(1)
 

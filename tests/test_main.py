@@ -77,6 +77,39 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
 
         console.print.assert_called_once()
 
+    def test_is_template_command_detects_templates_mode(self):
+        """Template command mode should be detected from parsed args."""
+        self.assertTrue(main_module.is_template_command(SimpleNamespace(command="templates")))
+        self.assertFalse(main_module.is_template_command(SimpleNamespace(command=None)))
+
+    def test_run_template_command_list_renders_registry(self):
+        """Template list command should print a registry table."""
+        console = Mock()
+        args = SimpleNamespace(template_action="list")
+
+        main_module.run_template_command(args, console)
+
+        self.assertTrue(console.print.called)
+
+    def test_run_template_command_explain_renders_selection(self):
+        """Template explain command should print config and selection details."""
+        console = Mock()
+        args = SimpleNamespace(template_action="explain")
+
+        with patch.object(
+            main_module,
+            "args_to_config",
+            return_value={
+                "state_management": "riverpod",
+                "navigation": "auto_route",
+                "include_examples": False,
+                "include_testing": False,
+            },
+        ):
+            main_module.run_template_command(args, console)
+
+        self.assertTrue(console.print.called)
+
     async def test_run_non_interactive_mode_success(self):
         """The non-interactive path should update config and print next steps."""
         args = SimpleNamespace(yes=True)
@@ -93,7 +126,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
             patch.object(main_module, "print_config_summary"),
             patch.object(main_module, "print_success"),
         ):
-            await main_module.run_non_interactive_mode(args, console, config, Path("/tmp/templates"))
+            await main_module.run_non_interactive_mode(
+                args, console, config, Path("/tmp/templates")
+            )
 
         self.assertEqual(config.get("project_name"), "demo_app")
         console.print.assert_any_call("\n[bold]Next steps:[/bold]")
@@ -112,7 +147,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
             patch.object(main_module, "print_error"),
         ):
             with self.assertRaises(SystemExit) as exc_info:
-                await main_module.run_non_interactive_mode(args, console, config, Path("/tmp/templates"))
+                await main_module.run_non_interactive_mode(
+                    args, console, config, Path("/tmp/templates")
+                )
 
         self.assertEqual(exc_info.exception.code, 1)
 
@@ -129,7 +166,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
             patch("builtins.input", return_value="n"),
         ):
             with self.assertRaises(SystemExit) as exc_info:
-                await main_module.run_non_interactive_mode(args, console, config, Path("/tmp/templates"))
+                await main_module.run_non_interactive_mode(
+                    args, console, config, Path("/tmp/templates")
+                )
 
         self.assertEqual(exc_info.exception.code, 0)
         mock_generate_project.assert_not_called()
@@ -147,7 +186,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
             patch("builtins.input", side_effect=KeyboardInterrupt),
         ):
             with self.assertRaises(SystemExit) as exc_info:
-                await main_module.run_non_interactive_mode(args, console, config, Path("/tmp/templates"))
+                await main_module.run_non_interactive_mode(
+                    args, console, config, Path("/tmp/templates")
+                )
 
         self.assertEqual(exc_info.exception.code, 0)
         mock_generate_project.assert_not_called()
@@ -160,7 +201,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
         prompts_instance.confirm_summary = AsyncMock(return_value=False)
 
         with (
-            patch.object(main_module, "collect_user_config", AsyncMock(return_value={"project_name": "demo"})),
+            patch.object(
+                main_module, "collect_user_config", AsyncMock(return_value={"project_name": "demo"})
+            ),
             patch.object(main_module, "Prompts", return_value=prompts_instance),
         ):
             with self.assertRaises(SystemExit) as exc_info:
@@ -176,7 +219,9 @@ class TestMainHelpers(unittest.IsolatedAsyncioTestCase):
         prompts_instance.confirm_summary = AsyncMock(return_value=True)
 
         with (
-            patch.object(main_module, "collect_user_config", AsyncMock(return_value={"project_name": "demo"})),
+            patch.object(
+                main_module, "collect_user_config", AsyncMock(return_value={"project_name": "demo"})
+            ),
             patch.object(main_module, "Prompts", return_value=prompts_instance),
             patch.object(main_module, "generate_project", return_value=(False, "boom", None)),
             patch.object(main_module, "print_error"),
@@ -293,7 +338,9 @@ class TestMainEntrypoint(unittest.IsolatedAsyncioTestCase):
             patch.object(main_module, "Console", return_value=console),
             patch.object(main_module, "check_flutter_installed", return_value=(True, "ok")),
             patch.object(main_module, "should_use_interactive_mode", return_value=True),
-            patch.object(main_module, "run_interactive_mode", AsyncMock(side_effect=KeyboardInterrupt)),
+            patch.object(
+                main_module, "run_interactive_mode", AsyncMock(side_effect=KeyboardInterrupt)
+            ),
             patch.object(main_module, "print_banner"),
         ):
             with self.assertRaises(SystemExit) as exc_info:
@@ -311,7 +358,9 @@ class TestMainEntrypoint(unittest.IsolatedAsyncioTestCase):
             patch.object(main_module, "Console", return_value=console),
             patch.object(main_module, "check_flutter_installed", return_value=(True, "ok")),
             patch.object(main_module, "should_use_interactive_mode", return_value=True),
-            patch.object(main_module, "run_interactive_mode", AsyncMock(side_effect=RuntimeError("boom"))),
+            patch.object(
+                main_module, "run_interactive_mode", AsyncMock(side_effect=RuntimeError("boom"))
+            ),
             patch.object(main_module, "print_banner"),
             patch.object(main_module, "print_error"),
         ):
@@ -319,6 +368,23 @@ class TestMainEntrypoint(unittest.IsolatedAsyncioTestCase):
                 await main_module.main()
 
         self.assertEqual(exc_info.exception.code, 1)
+
+    async def test_main_runs_template_command_without_flutter_check(self):
+        """Template commands should execute without requiring Flutter installation."""
+        console = Mock()
+        args = SimpleNamespace(command="templates", template_action="list")
+        run_template_command = Mock()
+
+        with (
+            patch.object(main_module, "parse_args", return_value=args),
+            patch.object(main_module, "Console", return_value=console),
+            patch.object(main_module, "run_template_command", run_template_command),
+            patch.object(main_module, "check_flutter_installed") as mock_flutter,
+        ):
+            await main_module.main()
+
+        run_template_command.assert_called_once_with(args, console)
+        mock_flutter.assert_not_called()
 
 
 if __name__ == "__main__":
