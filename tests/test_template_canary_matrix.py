@@ -83,12 +83,22 @@ class TestTemplateCanaryMatrix(unittest.TestCase):
                                 / "app_state_management.dart"
                             )
                             router_file = project_dir / "lib" / "app" / "router" / "app_router.dart"
+                            foundation_file = (
+                                project_dir / "lib" / "core" / "constants" / "app_constants.dart"
+                            )
+                            failures_file = (
+                                project_dir / "lib" / "core" / "errors" / "failures.dart"
+                            )
+                            logger_file = project_dir / "lib" / "core" / "utils" / "logger.dart"
 
                             self.assertTrue((project_dir / "lib" / "main.dart").exists())
                             self.assertTrue((project_dir / "lib" / "bootstrap.dart").exists())
                             self.assertTrue(app_file.exists())
                             self.assertTrue(state_file.exists())
                             self.assertTrue(router_file.exists())
+                            self.assertTrue(foundation_file.exists())
+                            self.assertTrue(failures_file.exists())
+                            self.assertTrue(logger_file.exists())
 
                             app_content = app_file.read_text()
                             self.assertIn("MatrixCanaryApp", app_content)
@@ -101,6 +111,10 @@ class TestTemplateCanaryMatrix(unittest.TestCase):
                             router_content = router_file.read_text()
                             self.assertIn(NAVIGATION_KEYWORDS[navigation], router_content)
                             self.assertNotIn("{{ProjectName}}", router_content)
+
+                            foundation_content = foundation_file.read_text()
+                            self.assertIn("class AppConstants", foundation_content)
+                            self.assertNotIn("{{ProjectName}}", foundation_content)
 
                             scenario_auth_file = (
                                 project_dir

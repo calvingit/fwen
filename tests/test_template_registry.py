@@ -18,6 +18,9 @@ class TestTemplateRegistry(unittest.TestCase):
         template_ids = {template.template_id for template in get_template_registry()}
 
         self.assertIn("core.di.feature_registrations", template_ids)
+        self.assertIn("core.foundation", template_ids)
+        self.assertIn("core.network_api.dio", template_ids)
+        self.assertIn("core.network_api.retrofit", template_ids)
         self.assertIn("scenario.commerce_reference", template_ids)
 
     def test_selected_templates_include_connectors_and_respect_examples_switch(self):
@@ -32,15 +35,32 @@ class TestTemplateRegistry(unittest.TestCase):
 
         self.assertIn("base", selected_without_examples)
         self.assertIn("core.di.feature_registrations", selected_without_examples)
+        self.assertIn("core.foundation", selected_without_examples)
         self.assertIn("state_management.provider", selected_without_examples)
         self.assertIn("navigation.navigator", selected_without_examples)
         self.assertNotIn("scenario.commerce_reference", selected_without_examples)
+        self.assertNotIn("core.network_api.dio", selected_without_examples)
 
         config.set("include_examples", True)
         selected_with_examples = {
             template.template_id for template in iter_selected_templates(config)
         }
         self.assertIn("scenario.commerce_reference", selected_with_examples)
+
+    def test_selected_templates_include_dio_network_template_when_api_is_dio(self):
+        """Dio API client template should be selected only for dio/retrofit choices."""
+        config = Config()
+        config.set("include_api", True)
+        config.set("api_choice", "dio")
+
+        selected = {template.template_id for template in iter_selected_templates(config)}
+        self.assertIn("core.network_api.dio", selected)
+        self.assertNotIn("core.network_api.retrofit", selected)
+
+        config.set("api_choice", "retrofit")
+        selected = {template.template_id for template in iter_selected_templates(config)}
+        self.assertIn("core.network_api.retrofit", selected)
+        self.assertNotIn("core.network_api.dio", selected)
 
     def test_state_and_navigation_templates_declare_mutual_exclusions(self):
         """Mutually exclusive template families should declare exclusions in metadata."""

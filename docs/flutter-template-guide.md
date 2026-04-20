@@ -37,6 +37,7 @@ The table below reflects the current registry entries.
 | `base` | `app` | always | `base` | `.` | App bootstrap, shell wiring, and shared app skeleton. | - | `implemented` |
 | `feature` | `features` | --create-feature, --feature-name | `feature` | `lib/features/<feature_name>` | Feature vertical-slice scaffold used by scripts/feature-dev.py. | - | `implemented` |
 | `core.di.feature_registrations` | `core` | always | `core/di` | `lib` | Core DI extension point for feature-level registrations. | - | `implemented` |
+| `core.foundation` | `core` | always | `core/foundation` | `lib` | Shared core primitives: constants, failures, usecases, logger, and theme colors. | - | `implemented` |
 | `state_management.bloc` | `core` | --state-management=bloc | `state_management/bloc` | `lib` | State-management connector for bloc projects. | state_management.provider, state_management.riverpod | `implemented` |
 | `state_management.provider` | `core` | --state-management=provider | `state_management/provider` | `lib` | State-management connector for provider projects. | state_management.bloc, state_management.riverpod | `implemented` |
 | `state_management.riverpod` | `core` | --state-management=riverpod | `state_management/riverpod` | `lib` | State-management connector for riverpod projects. | state_management.bloc, state_management.provider | `implemented` |
@@ -45,6 +46,8 @@ The table below reflects the current registry entries.
 | `navigation.navigator` | `app` | --navigation=navigator | `navigation/navigator` | `lib` | Root router integration for Navigator 2.0. | navigation.go_router, navigation.auto_route | `implemented` |
 | `auth` | `features` | --include-auth | `auth` | `.` | Authentication feature extension point. | - | `extension` |
 | `api` | `core` | --include-api | `api` | `.` | Network API extension point. | - | `extension` |
+| `core.network_api.dio` | `core` | --include-api, --api-choice=dio | `core/network_dio` | `lib` | Dio-based API client scaffold for network integration. | - | `implemented` |
+| `core.network_api.retrofit` | `core` | --include-api, --api-choice=retrofit | `core/network_dio` | `lib` | Dio API client scaffold reused by retrofit integration. | - | `implemented` |
 | `persistence` | `core` | --include-persistence | `persistence` | `.` | Persistence extension point. | - | `extension` |
 | `analytics` | `core` | --include-analytics | `analytics` | `.` | Analytics extension point. | - | `extension` |
 | `testing` | `test` | --include-testing | `testing` | `.` | Starter unit/widget testing templates. | - | `implemented` |

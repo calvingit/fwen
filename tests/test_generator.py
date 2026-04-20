@@ -162,6 +162,16 @@ class TestProjectGenerator(unittest.TestCase):
             "import 'package:get_it/get_it.dart';\n\n"
             "Future<void> registerFeatureDependencies(GetIt serviceLocator) async {}\n"
         )
+        (self.templates_dir / "core" / "foundation" / "core" / "constants").mkdir(parents=True)
+        (
+            self.templates_dir / "core" / "foundation" / "core" / "constants" / "app_constants.dart"
+        ).write_text(
+            "class AppConstants {\n  static const String appName = '{{ProjectName}}';\n}\n"
+        )
+        (self.templates_dir / "core" / "network_dio" / "core" / "network").mkdir(parents=True)
+        (
+            self.templates_dir / "core" / "network_dio" / "core" / "network" / "api_client.dart"
+        ).write_text("class ApiClient {}\n")
         (self.templates_dir / "navigation" / "go_router" / "app" / "router").mkdir(parents=True)
         (
             self.templates_dir / "navigation" / "go_router" / "app" / "router" / "app_router.dart"
@@ -473,6 +483,7 @@ class TestProjectGenerator(unittest.TestCase):
         self.assertIn(self.templates_dir / "api", copied_sources)
         self.assertIn(self.templates_dir / "persistence", copied_sources)
         self.assertIn(self.templates_dir / "analytics", copied_sources)
+        self.assertIn(self.templates_dir / "core" / "network_dio", copied_sources)
 
     def test_apply_templates_copies_commerce_reference_when_examples_enabled(self):
         """Commerce reference templates should be copied when include_examples is enabled."""

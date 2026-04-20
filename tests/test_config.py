@@ -131,6 +131,13 @@ class TestConfig(unittest.TestCase):
         self.assertIn("flutter_bloc", deps["dependencies"])
         self.assertIn("bloc", deps["dependencies"])
 
+    def test_get_pubspec_dependencies_include_core_foundation_packages(self):
+        """Core foundation template dependencies should always be included."""
+        deps = self.config.get_pubspec_dependencies()
+
+        self.assertIn("equatable", deps["dependencies"])
+        self.assertIn("logger", deps["dependencies"])
+
     def test_get_pubspec_dependencies_provider(self):
         """Test dependency generation for Provider state management."""
         self.config.set("state_management", "provider")

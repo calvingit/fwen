@@ -44,8 +44,14 @@ class Config:
 
     # Firebase services
     FIREBASE_SERVICES = [
-        "auth", "firestore", "functions", "analytics",
-        "messaging", "storage", "remote_config", "crashlytics"
+        "auth",
+        "firestore",
+        "functions",
+        "analytics",
+        "messaging",
+        "storage",
+        "remote_config",
+        "crashlytics",
     ]
 
     def __init__(self):
@@ -72,7 +78,7 @@ class Config:
         if not name:
             return False, "Project name cannot be empty"
 
-        if not re.match(r'^[a-z][a-z0-9_]*$', name):
+        if not re.match(r"^[a-z][a-z0-9_]*$", name):
             return False, (
                 "Project name must be lowercase, start with a letter, "
                 "and contain only letters, numbers, and underscores"
@@ -85,12 +91,12 @@ class Config:
 
     def to_pascal_case(self, snake_str: str) -> str:
         """Convert snake_case to PascalCase."""
-        return ''.join(word.capitalize() for word in snake_str.split('_'))
+        return "".join(word.capitalize() for word in snake_str.split("_"))
 
     def to_camel_case(self, snake_str: str) -> str:
         """Convert snake_case to camelCase."""
-        parts = snake_str.split('_')
-        return parts[0] + ''.join(word.capitalize() for word in parts[1:])
+        parts = snake_str.split("_")
+        return parts[0] + "".join(word.capitalize() for word in parts[1:])
 
     def get_substitution_vars(self) -> dict[str, str]:
         """Get all substitution variables for templates."""
@@ -107,22 +113,30 @@ class Config:
 
     def get_pubspec_dependencies(self) -> dict[str, str]:
         """Get dependencies to add to pubspec.yaml based on config."""
-        deps = {}
+        deps = {
+            # Core foundation templates
+            "equatable": "^2.0.5",
+            "logger": "^2.4.0",
+        }
 
         # State management
         sm = self.get("state_management")
         if sm == "bloc":
-            deps.update({
-                "flutter_bloc": "^8.1.0",
-                "bloc": "^8.1.0",
-            })
+            deps.update(
+                {
+                    "flutter_bloc": "^8.1.0",
+                    "bloc": "^8.1.0",
+                }
+            )
         elif sm == "provider":
             deps["provider"] = "^6.1.0"
         elif sm == "riverpod":
-            deps.update({
-                "flutter_riverpod": "^2.4.0",
-                "riverpod_annotation": "^2.3.0",
-            })
+            deps.update(
+                {
+                    "flutter_riverpod": "^2.4.0",
+                    "riverpod_annotation": "^2.3.0",
+                }
+            )
 
         # Navigation
         nav = self.get("navigation")
@@ -142,10 +156,12 @@ class Config:
             if api == "dio":
                 deps["dio"] = "^5.4.0"
             elif api == "retrofit":
-                deps.update({
-                    "dio": "^5.4.0",
-                    "retrofit": "^4.0.0",
-                })
+                deps.update(
+                    {
+                        "dio": "^5.4.0",
+                        "retrofit": "^4.0.0",
+                    }
+                )
 
         # State persistence
         if self.get("include_persistence"):
