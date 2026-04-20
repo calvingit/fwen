@@ -17,8 +17,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install ruff
-        run: uv pip install ruff
+      - name: Install dependencies
+        run: uv sync
 
       - name: Run ruff check
         run: uv run ruff check .
