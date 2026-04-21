@@ -215,6 +215,64 @@ class TestConfig(unittest.TestCase):
 
         self.assertEqual(types, ["unit", "widget"])
 
+    def test_firebase_core_dep_always_present_when_firebase_enabled(self):
+        """firebase_core must be added whenever include_firebase is True."""
+        self.config.set("include_firebase", True)
+        self.config.set("firebase_services", [])
+        deps = self.config.get_pubspec_dependencies()
+
+        self.assertIn("firebase_core", deps["dependencies"])
+
+    def test_firebase_individual_service_deps(self):
+        """Each Firebase service selection adds its corresponding package."""
+        service_to_package = {
+            "auth": "firebase_auth",
+            "firestore": "cloud_firestore",
+            "functions": "cloud_functions",
+            "analytics": "firebase_analytics",
+            "messaging": "firebase_messaging",
+            "storage": "firebase_storage",
+            "remote_config": "firebase_remote_config",
+            "crashlytics": "firebase_crashlytics",
+        }
+        for service, package in service_to_package.items():
+            with self.subTest(service=service):
+                config = Config()
+                config.set("include_firebase", True)
+                config.set("firebase_services", [service])
+                deps = config.get_pubspec_dependencies()
+
+                self.assertIn(package, deps["dependencies"])
+
+    def test_firebase_all_services_deps(self):
+        """Selecting all Firebase services adds all 8 service packages."""
+        self.config.set("include_firebase", True)
+        self.config.set("firebase_services", list(Config.FIREBASE_SERVICES))
+        deps = self.config.get_pubspec_dependencies()
+
+        expected_packages = [
+            "firebase_auth",
+            "cloud_firestore",
+            "cloud_functions",
+            "firebase_analytics",
+            "firebase_messaging",
+            "firebase_storage",
+            "firebase_remote_config",
+            "firebase_crashlytics",
+        ]
+        for pkg in expected_packages:
+            self.assertIn(pkg, deps["dependencies"])
+
+    def test_firebase_disabled_adds_no_service_packages(self):
+        """No Firebase service packages when include_firebase is False."""
+        self.config.set("include_firebase", False)
+        self.config.set("firebase_services", list(Config.FIREBASE_SERVICES))
+        deps = self.config.get_pubspec_dependencies()
+
+        self.assertNotIn("firebase_core", deps["dependencies"])
+        self.assertNotIn("firebase_auth", deps["dependencies"])
+        self.assertNotIn("cloud_firestore", deps["dependencies"])
+
 
 if __name__ == "__main__":
     unittest.main()

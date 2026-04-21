@@ -186,6 +186,18 @@ class Config:
         # Firebase
         if self.get("include_firebase"):
             deps["firebase_core"] = "^2.24.0"
+            _firebase_service_deps: dict[str, dict[str, str]] = {
+                "auth":          {"firebase_auth": "^4.16.0"},
+                "firestore":     {"cloud_firestore": "^4.14.0"},
+                "functions":     {"cloud_functions": "^4.6.0"},
+                "analytics":     {"firebase_analytics": "^10.7.0"},
+                "messaging":     {"firebase_messaging": "^14.7.0"},
+                "storage":       {"firebase_storage": "^11.5.0"},
+                "remote_config": {"firebase_remote_config": "^4.3.0"},
+                "crashlytics":   {"firebase_crashlytics": "^3.4.0"},
+            }
+            for service in self.get("firebase_services", []):
+                deps.update(_firebase_service_deps.get(service, {}))
 
         # Dev dependencies
         dev_deps = {}

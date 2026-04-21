@@ -441,10 +441,12 @@ class TestProjectGenerator(unittest.TestCase):
 
     @patch("fwen.generator.copy_directory")
     def test_apply_templates_missing_extension_template_is_skipped(self, mock_copy):
-        """Missing extension templates should be skipped without errors."""
+        """Missing extension templates (e.g. firebase services) are skipped without errors."""
         project_dir = self.output_dir / "test_app"
         (project_dir / "lib").mkdir(parents=True)
-        self.config.set("include_auth", True)
+        # firebase services remain status="extension" — missing dirs are silently skipped
+        self.config.set("include_firebase", True)
+        self.config.set("firebase_services", ["firestore"])
 
         generator = ProjectGenerator(self.config, self.templates_dir)
         generator.project_path = project_dir
@@ -453,7 +455,7 @@ class TestProjectGenerator(unittest.TestCase):
 
         self.assertTrue(success)
         copied_sources = [call.args[0] for call in mock_copy.call_args_list]
-        self.assertNotIn(self.templates_dir / "auth", copied_sources)
+        self.assertNotIn(self.templates_dir / "firebase" / "firestore", copied_sources)
 
     @patch("fwen.generator.copy_directory")
     def test_apply_templates_copies_common_feature_infra_templates(self, mock_copy):

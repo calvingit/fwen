@@ -44,12 +44,12 @@ The table below reflects the current registry entries.
 | `navigation.go_router` | `app` | --navigation=go_router | `navigation/go_router` | `lib` | Root router integration for go_router. | navigation.auto_route, navigation.navigator | `implemented` |
 | `navigation.auto_route` | `app` | --navigation=auto_route | `navigation/auto_route` | `lib` | Root router integration for auto_route. | navigation.go_router, navigation.navigator | `implemented` |
 | `navigation.navigator` | `app` | --navigation=navigator | `navigation/navigator` | `lib` | Root router integration for Navigator 2.0. | navigation.go_router, navigation.auto_route | `implemented` |
-| `auth` | `features` | --include-auth | `auth` | `.` | Authentication feature extension point. | - | `extension` |
+| `auth` | `features` | --include-auth | `auth` | `.` | Email authentication feature: domain entities, repository, usecases, data layer, and login page. | - | `implemented` |
 | `api` | `core` | --include-api | `api` | `.` | Network API extension point. | - | `extension` |
 | `core.network_api.dio` | `core` | --include-api, --api-choice=dio | `core/network_dio` | `lib` | Dio-based API client scaffold for network integration. | - | `implemented` |
 | `core.network_api.retrofit` | `core` | --include-api, --api-choice=retrofit | `core/network_dio` | `lib` | Dio API client scaffold reused by retrofit integration. | - | `implemented` |
-| `persistence` | `core` | --include-persistence | `persistence` | `.` | Persistence extension point. | - | `extension` |
-| `analytics` | `core` | --include-analytics | `analytics` | `.` | Analytics extension point. | - | `extension` |
+| `persistence` | `core` | --include-persistence | `persistence` | `.` | StorageService abstract interface + SharedPreferences implementation. | - | `implemented` |
+| `analytics` | `core` | --include-analytics | `analytics` | `.` | AnalyticsService abstract interface + Firebase Analytics, Sentry, and Mixpanel implementations. | - | `implemented` |
 | `testing` | `test` | --include-testing | `testing` | `.` | Starter unit/widget testing templates. | - | `implemented` |
 | `scenario.commerce_reference` | `features` | --include-examples | `scenarios/commerce_reference/lib` | `lib` | Multi-feature reference scenario for auth/catalog/cart/profile. | - | `implemented` |
 | `firebase.auth` | `core` | --include-firebase, --firebase-services=auth | `firebase/auth` | `.` | Firebase auth extension point. | - | `extension` |

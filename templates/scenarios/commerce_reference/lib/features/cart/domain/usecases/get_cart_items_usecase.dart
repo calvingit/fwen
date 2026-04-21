@@ -9,6 +9,7 @@ class GetCartItemsUseCase {
         sku: '{{project_name}}-catalog-item-1',
         title: 'Starter Product',
         quantity: 1,
+        priceCents: 1999,
       ),
     ];
   }
