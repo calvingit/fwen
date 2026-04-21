@@ -104,3 +104,4 @@ test_*/
 
 # Project specific
 *.log
+.claude/settings.local.json
